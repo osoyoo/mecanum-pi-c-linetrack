@@ -45,8 +45,8 @@
 #define ENA_REAR    2
 #define ENB_REAR    3
 
-// Test speeds - MAXIMUM for testing
-#define TEST_SPEED  0xFFFF  // 100% max - absolute maximum power!
+// Test speeds - Match Python working code
+#define TEST_SPEED  0x7FFF  // 50% - same as Python move_speed
 
 // Global variables
 int i2c_fd;
@@ -70,10 +70,18 @@ int i2c_read_byte(int fd, uint8_t reg) {
 
 void pca9685_init(int fd) {
     printf("Initializing PCA9685...\n");
+    // Reset MODE1
     i2c_write_byte(fd, MODE1, 0x00);
     usleep(10000);
-    
-    uint8_t prescale = 101;  // 60Hz
+
+    // CRITICAL FIX: Set MODE2 for totem pole output
+    // This is what the Python adafruit library does!
+    printf("  Setting MODE2 = 0x04 (totem pole output)...\n");
+    i2c_write_byte(fd, MODE2, 0x04);
+    usleep(5000);
+
+    // Set frequency to 60Hz
+    uint8_t prescale = 101;
     int oldmode = i2c_read_byte(fd, MODE1);
     int newmode = (oldmode & 0x7F) | 0x10;
     i2c_write_byte(fd, MODE1, newmode);
@@ -82,9 +90,9 @@ void pca9685_init(int fd) {
     usleep(2000);
     i2c_write_byte(fd, MODE1, oldmode);
     usleep(10000);
-    i2c_write_byte(fd, MODE1, oldmode | 0x20);
+    i2c_write_byte(fd, MODE1, oldmode | 0xA0);  // Auto-increment + Restart
     usleep(5000);
-    printf("PCA9685 initialized!\n");
+    printf("✓ PCA9685 initialized with MODE2=0x04!\n");
 }
 
 void pca9685_set_pwm(int fd, uint8_t channel, uint16_t value) {

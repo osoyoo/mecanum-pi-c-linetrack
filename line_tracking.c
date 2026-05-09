@@ -64,12 +64,11 @@
 #define IR_SENSOR_3  19  // Right-center sensor
 #define IR_SENSOR_4  26  // Right-most sensor
 
-// Speed settings for line tracking
-// NOTE: Set to MAXIMUM for testing. Reduce these values if robot is too fast!
-#define BASE_SPEED      0xFFFF  // Base speed for forward movement (100% max)
-#define TURN_SPEED      0xDFFF  // Speed for gentle turns (87% max)
-#define SHARP_TURN_SPEED 0xBFFF // Speed for sharp turns (75% max)
-#define SEARCH_SPEED    0x9FFF  // Speed when searching for line (62% max)
+// Speed settings for line tracking - Matching Python working code
+#define BASE_SPEED      0x7FFF  // Base speed for forward movement (50%, same as Python)
+#define TURN_SPEED      0x4FFF  // Speed for gentle turns (31%, same as Python mid_speed)
+#define SHARP_TURN_SPEED 0x2FFF // Speed for sharp turns (18%, same as Python low_speed)
+#define SEARCH_SPEED    0x7FFF  // Speed when searching for line (50%)
 
 // Global variables
 int i2c_fd;
@@ -99,20 +98,31 @@ int i2c_read_byte(int fd, uint8_t reg) {
  * PCA9685 PWM Controller Functions
  */
 void pca9685_init(int fd) {
+    // Reset MODE1 register
     i2c_write_byte(fd, MODE1, 0x00);
     usleep(10000);
 
-    uint8_t prescale = 101;  // 60Hz PWM frequency
+    // CRITICAL: Set MODE2 for totem pole output (required for motor control!)
+    // MODE2 = 0x04: OUTDRV=1 (totem pole structure), outputs not inverted
+    // This is what the adafruit_pca9685 Python library does!
+    i2c_write_byte(fd, MODE2, 0x04);
+    usleep(5000);
+
+    // Set PWM frequency to 60Hz (good for motors)
+    uint8_t prescale = 101;  // 60Hz: prescale = 25MHz / (4096 * 60Hz) - 1 = 101
     int oldmode = i2c_read_byte(fd, MODE1);
-    int newmode = (oldmode & 0x7F) | 0x10;
+    int newmode = (oldmode & 0x7F) | 0x10;    // Sleep mode
     i2c_write_byte(fd, MODE1, newmode);
     usleep(2000);
     i2c_write_byte(fd, PRESCALE, prescale);
     usleep(2000);
-    i2c_write_byte(fd, MODE1, oldmode);
+    i2c_write_byte(fd, MODE1, oldmode);        // Wake up
     usleep(10000);
-    i2c_write_byte(fd, MODE1, oldmode | 0x20);
+    i2c_write_byte(fd, MODE1, oldmode | 0xA0);  // Auto-increment + Restart
     usleep(5000);
+
+    printf("✓ PCA9685 initialized: MODE2=0x04 (totem pole), PRESCALE=%d, MODE1=0x%02X\n",
+           prescale, oldmode | 0xA0);
 }
 
 void pca9685_set_pwm(int fd, uint8_t channel, uint16_t value) {
