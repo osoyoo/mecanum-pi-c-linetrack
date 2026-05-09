@@ -68,11 +68,20 @@
 #define BASE_SPEED      0x7FFF  // Base speed for forward movement (50%, same as Python)
 #define TURN_SPEED      0x4FFF  // Speed for gentle turns (31%, same as Python mid_speed)
 #define SHARP_TURN_SPEED 0x2FFF // Speed for sharp turns (18%, same as Python low_speed)
-#define SEARCH_SPEED    0x7FFF  // Speed when searching for line (50%)
+#define SEARCH_SPEED    0x3FFF  // Speed when searching for line (slower, 25%)
+
+// Movement state tracking for line search
+typedef enum {
+    STATE_FORWARD,
+    STATE_LEFT_TURN,
+    STATE_RIGHT_TURN,
+    STATE_STOPPED
+} MovementState;
 
 // Global variables
 int i2c_fd;
 int gpio_chip;
+MovementState last_movement = STATE_FORWARD;
 
 /*
  * I2C Helper Functions
@@ -353,43 +362,66 @@ int calculate_line_position(int *sensors) {
  */
 void track_line(int position) {
     if (position == 100) {
-        // Line lost - stop and search
-        printf("LINE LOST - Stopping\n");
-        stop_car();
-        usleep(100000);  // Brief pause
+        // Line lost - search based on last movement
+        printf("LINE LOST - Searching (Last: ");
 
-        // You can add search pattern here if desired
-        // For now, just stop
+        switch (last_movement) {
+            case STATE_FORWARD:
+                printf("FORWARD) - Going backward slowly\n");
+                go_back(SEARCH_SPEED);
+                break;
+
+            case STATE_RIGHT_TURN:
+                printf("RIGHT TURN) - Turning left to search\n");
+                turn_left(SEARCH_SPEED);
+                break;
+
+            case STATE_LEFT_TURN:
+                printf("LEFT TURN) - Turning right to search\n");
+                turn_right(SEARCH_SPEED);
+                break;
+
+            default:
+                printf("UNKNOWN) - Stopping\n");
+                stop_car();
+                break;
+        }
 
     } else if (position == 200) {
         // Wide line or intersection - go straight
         printf("Wide line/Intersection - Going straight\n");
         go_ahead(BASE_SPEED);
+        last_movement = STATE_FORWARD;
 
     } else if (position == 0) {
         // Perfect center - go straight
         printf("Center - Going straight\n");
         go_ahead(BASE_SPEED);
+        last_movement = STATE_FORWARD;
 
     } else if (position == -1) {
         // Slight left - gentle left turn
         printf("Slight left - Gentle turn left\n");
         gentle_turn_left(TURN_SPEED, BASE_SPEED);
+        last_movement = STATE_LEFT_TURN;
 
     } else if (position == -2) {
         // Far left - sharp left turn
         printf("Far left - Sharp turn left\n");
         turn_left(SHARP_TURN_SPEED);
+        last_movement = STATE_LEFT_TURN;
 
     } else if (position == 1) {
         // Slight right - gentle right turn
         printf("Slight right - Gentle turn right\n");
         gentle_turn_right(BASE_SPEED, TURN_SPEED);
+        last_movement = STATE_RIGHT_TURN;
 
     } else if (position == 2) {
         // Far right - sharp right turn
         printf("Far right - Sharp turn right\n");
         turn_right(SHARP_TURN_SPEED);
+        last_movement = STATE_RIGHT_TURN;
     }
 }
 
