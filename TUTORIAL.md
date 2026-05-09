@@ -160,12 +160,12 @@ ls -la
 
 You should see:
 - `line_tracking.c` - Main line tracking program
-- `mecanum5.c` - Basic mecanum movement demo
 - `Makefile` - Build configuration
 - `install_dependencies.sh` - Dependency installation script
 - `README.md` - Project overview
 - `README_LINE_TRACKING.md` - Line tracking documentation
-- `QUICKSTART.md` - Quick start guide
+- `TUTORIAL.md` - Complete tutorial (this file)
+- `QUICK_START_COMMANDS.md` - Quick command reference
 - `.gitignore`, `LICENSE` - Git and license files
 
 ---
@@ -270,19 +270,19 @@ Channel 3       → ENB (Rear Right motor)
 Connect 5 IR sensors to Raspberry Pi GPIO pins:
 
 ```
-Raspberry Pi GPIO → IR Sensor (Default Configuration)
-GPIO 17 → Sensor 0 (Left-most)
-GPIO 18 → Sensor 1 (Left-center)
-GPIO 25 → Sensor 2 (Center)
-GPIO 8  → Sensor 3 (Right-center)
-GPIO 7  → Sensor 4 (Right-most)
+Raspberry Pi GPIO → IR Sensor (Pre-configured)
+GPIO 5  → Sensor 0 (Left-most)
+GPIO 6  → Sensor 1 (Left-center)
+GPIO 13 → Sensor 2 (Center)
+GPIO 19 → Sensor 3 (Right-center)
+GPIO 26 → Sensor 4 (Right-most)
 
 Each sensor also needs:
 5V or 3.3V → VCC
 GND → GND
 ```
 
-**IMPORTANT**: IR sensor pin assignments can be changed in the code (see Step 5).
+**NOTE**: These GPIO pins are already configured in the code. Connect your sensors to these pins.
 
 #### Power Supply
 
@@ -321,28 +321,20 @@ Open the file for editing:
 nano line_tracking.c
 ```
 
-Find the IR sensor pin definitions (around line 58-62):
+The IR sensor pins are already configured in the code (around line 59-65):
 
 ```c
 // IR Sensor GPIO Pin Definitions (BCM numbering)
-#define IR_SENSOR_0  17  // Left-most sensor
-#define IR_SENSOR_1  18  // Left-center sensor
-#define IR_SENSOR_2  25  // Center sensor
-#define IR_SENSOR_3  8   // Right-center sensor
-#define IR_SENSOR_4  7   // Right-most sensor
-```
-
-Change the numbers to match your actual wiring.
-
-**Example**: If you connected sensors to GPIO 5, 6, 13, 19, 26:
-
-```c
 #define IR_SENSOR_0  5   // Left-most sensor
 #define IR_SENSOR_1  6   // Left-center sensor
 #define IR_SENSOR_2  13  // Center sensor
 #define IR_SENSOR_3  19  // Right-center sensor
 #define IR_SENSOR_4  26  // Right-most sensor
 ```
+
+**These pins are pre-configured to GPIO 5, 6, 13, 19, 26.** Simply connect your sensors to these pins.
+
+If you need to use different pins, change the numbers in the code above to match your wiring.
 
 Save and exit:
 - Press `Ctrl+O` to save
@@ -399,16 +391,6 @@ ls -lh line_tracking
 
 You should see a file named `line_tracking` with execute permissions.
 
-### 6.4 Optional: Compile the Demo Program
-
-You can also compile the basic mecanum demo:
-
-```bash
-make mecanum5
-```
-
-This creates `mecanum5` executable for testing basic movement without sensors.
-
 ---
 
 ## Step 7: Test Your Setup
@@ -432,11 +414,11 @@ cat > test_sensors.sh << 'SCRIPT'
 #!/bin/bash
 echo "Reading IR sensors (Ctrl+C to stop)"
 while true; do
-    echo -n "S0: $(cat /sys/class/gpio/gpio17/value 2>/dev/null || echo '?') "
-    echo -n "S1: $(cat /sys/class/gpio/gpio18/value 2>/dev/null || echo '?') "
-    echo -n "S2: $(cat /sys/class/gpio/gpio25/value 2>/dev/null || echo '?') "
-    echo -n "S3: $(cat /sys/class/gpio/gpio8/value 2>/dev/null || echo '?') "
-    echo "S4: $(cat /sys/class/gpio/gpio7/value 2>/dev/null || echo '?')"
+    echo -n "S0: $(cat /sys/class/gpio/gpio5/value 2>/dev/null || echo '?') "
+    echo -n "S1: $(cat /sys/class/gpio/gpio6/value 2>/dev/null || echo '?') "
+    echo -n "S2: $(cat /sys/class/gpio/gpio13/value 2>/dev/null || echo '?') "
+    echo -n "S3: $(cat /sys/class/gpio/gpio19/value 2>/dev/null || echo '?') "
+    echo "S4: $(cat /sys/class/gpio/gpio26/value 2>/dev/null || echo '?')"
     sleep 0.5
 done
 SCRIPT
@@ -446,29 +428,6 @@ sudo ./test_sensors.sh
 ```
 
 Move a black line under the sensors and verify values change from 1 to 0.
-
-### 7.3 Test Basic Movement (Optional)
-
-Run the demo program to test motors:
-
-```bash
-sudo ./mecanum5
-```
-
-The robot should:
-- Move forward
-- Move backward
-- Shift left/right
-- Turn left/right
-- Stop
-
-Press `Ctrl+C` if you need to stop it manually.
-
-**If motors don't move:**
-- Check L298N connections
-- Verify motor power supply is connected
-- Check PCA9685 PWM connections
-- Ensure enable pins are connected
 
 ---
 
@@ -580,11 +539,11 @@ sudo i2cdetect -y 1
 
 **Check 3**: Test sensors manually
 ```bash
-sudo gpio -g mode 17 in
-sudo gpio -g read 17
+sudo gpio -g mode 5 in
+sudo gpio -g read 5
 ```
 
-Replace 17 with your sensor pin numbers.
+Replace 5 with any of your sensor pin numbers (5, 6, 13, 19, or 26).
 
 **Check 4**: Sensor polarity
 - Some sensors output inverted signals (0=white, 1=black)

@@ -64,17 +64,6 @@ Press **Ctrl+C**
 
 ---
 
-## Optional: Test Basic Mecanum Movement First
-
-```bash
-make mecanum5
-sudo ./mecanum5
-```
-
-This runs a demo showing all movement capabilities without needing sensors.
-
----
-
 ## Troubleshooting Commands
 
 ### Check I2C devices

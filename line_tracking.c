@@ -57,12 +57,12 @@
 #define ENB_REAR    3
 
 // IR Sensor GPIO Pin Definitions (BCM numbering)
-// Adjust these pin numbers according to your actual wiring
-#define IR_SENSOR_0  17  // Left-most sensor
-#define IR_SENSOR_1  18  // Left-center sensor
-#define IR_SENSOR_2  25  // Center sensor
-#define IR_SENSOR_3  8   // Right-center sensor
-#define IR_SENSOR_4  7   // Right-most sensor
+// These are the actual GPIO pins used for the 5 IR sensors
+#define IR_SENSOR_0  5   // Left-most sensor
+#define IR_SENSOR_1  6   // Left-center sensor
+#define IR_SENSOR_2  13  // Center sensor
+#define IR_SENSOR_3  19  // Right-center sensor
+#define IR_SENSOR_4  26  // Right-most sensor
 
 // Speed settings for line tracking
 #define BASE_SPEED      0x3FFF  // Base speed for forward movement (25% max)

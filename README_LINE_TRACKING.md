@@ -51,22 +51,22 @@ I2C Address: 0x40 (default)
 I2C Bus: /dev/i2c-1
 ```
 
-### IR Sensor Connections (Default GPIO Pins)
+### IR Sensor Connections (GPIO Pins)
 ```
-IR_SENSOR_0 (GPIO 17) -> Left-most sensor
-IR_SENSOR_1 (GPIO 18) -> Left-center sensor
-IR_SENSOR_2 (GPIO 25) -> Center sensor
-IR_SENSOR_3 (GPIO 8)  -> Right-center sensor
-IR_SENSOR_4 (GPIO 7)  -> Right-most sensor
+IR_SENSOR_0 (GPIO 5)  -> Left-most sensor
+IR_SENSOR_1 (GPIO 6)  -> Left-center sensor
+IR_SENSOR_2 (GPIO 13) -> Center sensor
+IR_SENSOR_3 (GPIO 19) -> Right-center sensor
+IR_SENSOR_4 (GPIO 26) -> Right-most sensor
 ```
 
-**IMPORTANT**: Adjust these GPIO pin numbers in `line_tracking.c` according to your actual wiring:
+These GPIO pins are pre-configured in `line_tracking.c`:
 ```c
-#define IR_SENSOR_0  17  // Change to your GPIO pin
-#define IR_SENSOR_1  18  // Change to your GPIO pin
-#define IR_SENSOR_2  25  // Change to your GPIO pin
-#define IR_SENSOR_3  8   // Change to your GPIO pin
-#define IR_SENSOR_4  7   // Change to your GPIO pin
+#define IR_SENSOR_0  5   // Left-most sensor
+#define IR_SENSOR_1  6   // Left-center sensor
+#define IR_SENSOR_2  13  // Center sensor
+#define IR_SENSOR_3  19  // Right-center sensor
+#define IR_SENSOR_4  26  // Right-most sensor
 ```
 
 ## Installation
@@ -143,11 +143,13 @@ You can adjust these speeds in `line_tracking.c` based on your track and power s
 ## Customization
 
 ### Adjusting Sensor Pins
-Edit the sensor pin definitions in `line_tracking.c`:
+The sensor pins are pre-configured in `line_tracking.c` as GPIO 5, 6, 13, 19, 26. If you need to change them:
 ```c
-#define IR_SENSOR_0  17  // Your GPIO pin
-#define IR_SENSOR_1  18  // Your GPIO pin
-// ... etc
+#define IR_SENSOR_0  5   // Left-most sensor
+#define IR_SENSOR_1  6   // Left-center sensor
+#define IR_SENSOR_2  13  // Center sensor
+#define IR_SENSOR_3  19  // Right-center sensor
+#define IR_SENSOR_4  26  // Right-most sensor
 ```
 
 ### Adjusting Speeds
@@ -219,9 +221,12 @@ if (position == 100) {
 ## Files
 
 - `line_tracking.c` - Main line tracking program
-- `mecanum5.c` - Original mecanum demo program
 - `Makefile` - Build configuration
-- `README_LINE_TRACKING.md` - This file
+- `install_dependencies.sh` - Dependency installation script
+- `README.md` - Project overview
+- `README_LINE_TRACKING.md` - This file (detailed documentation)
+- `TUTORIAL.md` - Complete step-by-step tutorial
+- `QUICK_START_COMMANDS.md` - Quick command reference
 
 ## Example Output
 
