@@ -23,6 +23,7 @@
 // PCA9685 Register Addresses
 #define PCA9685_ADDRESS     0x40
 #define MODE1               0x00
+#define MODE2               0x01
 #define PRESCALE            0xFE
 #define LED0_ON_L           0x06
 
