@@ -65,11 +65,11 @@
 #define IR_SENSOR_4  26  // Right-most sensor
 
 // Speed settings for line tracking
-// NOTE: Increased speeds for better motor response. Reduce if robot is too fast.
-#define BASE_SPEED      0x8FFF  // Base speed for forward movement (56% max)
-#define TURN_SPEED      0x6FFF  // Speed for gentle turns (43% max)
-#define SHARP_TURN_SPEED 0x5FFF // Speed for sharp turns (37% max)
-#define SEARCH_SPEED    0x4FFF  // Speed when searching for line (31% max)
+// NOTE: Set to MAXIMUM for testing. Reduce these values if robot is too fast!
+#define BASE_SPEED      0xFFFF  // Base speed for forward movement (100% max)
+#define TURN_SPEED      0xDFFF  // Speed for gentle turns (87% max)
+#define SHARP_TURN_SPEED 0xBFFF // Speed for sharp turns (75% max)
+#define SEARCH_SPEED    0x9FFF  // Speed when searching for line (62% max)
 
 // Global variables
 int i2c_fd;

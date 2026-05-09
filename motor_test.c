@@ -45,8 +45,8 @@
 #define ENA_REAR    2
 #define ENB_REAR    3
 
-// Test speeds - HIGHER for testing
-#define TEST_SPEED  0x8FFF  // 56% max - should definitely be visible
+// Test speeds - MAXIMUM for testing
+#define TEST_SPEED  0xFFFF  // 100% max - absolute maximum power!
 
 // Global variables
 int i2c_fd;
@@ -206,10 +206,15 @@ int main(void) {
     pca9685_init(i2c_fd);
     
     printf("\n=== Hardware Check Complete ===\n");
-    printf("Starting motor tests in 2 seconds...\n");
-    printf("Each motor will spin forward then backward.\n");
+    printf("\n⚠️  CRITICAL: Before testing, verify:\n");
+    printf("   1. L298N enable pin JUMPERS are REMOVED!\n");
+    printf("   2. PCA9685 channels 0-3 are connected to L298N ENA/ENB pins\n");
+    printf("   3. Motor power supply is connected (6-12V)\n");
+    printf("   4. All grounds are connected together\n");
+    printf("\nStarting motor tests in 3 seconds...\n");
+    printf("Each motor will spin at FULL SPEED forward then backward.\n");
     printf("Press Ctrl+C to stop at any time.\n\n");
-    sleep(2);
+    sleep(3);
     
     // Test each motor individually
     test_motor("Front Left Motor (ENA_FRONT, IN3/IN4)", IN3_FRONT, IN4_FRONT, ENA_FRONT);
@@ -240,14 +245,17 @@ int main(void) {
     stop_all();
     
     printf("\n=== Motor Test Complete! ===\n");
-    printf("\nDiagnostic Information:\n");
-    printf("- If motors didn't move, check:\n");
-    printf("  1. L298N motor power supply connected?\n");
-    printf("  2. PCA9685 channels connected to L298N enable pins (ENA/ENB)?\n");
-    printf("  3. Motor wires connected?\n");
-    printf("  4. All grounds connected together?\n");
-    printf("- If motors moved: Your hardware is working!\n");
-    printf("  The issue might be with sensor logic or speed values.\n");
+    printf("\n🔍 DIAGNOSTIC RESULTS:\n\n");
+    printf("❌ If motors didn't move AT ALL (most common issues):\n");
+    printf("   1. ⚠️  L298N enable pin JUMPERS still ON\n");
+    printf("      → REMOVE the jumpers from ENA and ENB pins!\n");
+    printf("      → Connect PCA9685 PWM outputs to these pins instead\n");
+    printf("   2. Motor power supply not connected (need 6-12V separate supply)\n");
+    printf("   3. PCA9685 PWM outputs not wired to L298N enable pins\n");
+    printf("   4. Motor power supply insufficient voltage/current\n");
+    printf("   5. All grounds not connected together\n\n");
+    printf("✅ If motors moved: Your hardware is working!\n");
+    printf("   → Recompile line_tracking and test: make clean && make && sudo ./line_tracking\n");
     
     // Cleanup
     close(i2c_fd);
