@@ -65,10 +65,11 @@
 #define IR_SENSOR_4  26  // Right-most sensor
 
 // Speed settings for line tracking
-#define BASE_SPEED      0x3FFF  // Base speed for forward movement (25% max)
-#define TURN_SPEED      0x2FFF  // Speed for gentle turns (18% max)
-#define SHARP_TURN_SPEED 0x2000 // Speed for sharp turns (12% max)
-#define SEARCH_SPEED    0x1FFF  // Speed when searching for line (12% max)
+// NOTE: Increased speeds for better motor response. Reduce if robot is too fast.
+#define BASE_SPEED      0x8FFF  // Base speed for forward movement (56% max)
+#define TURN_SPEED      0x6FFF  // Speed for gentle turns (43% max)
+#define SHARP_TURN_SPEED 0x5FFF // Speed for sharp turns (37% max)
+#define SEARCH_SPEED    0x4FFF  // Speed when searching for line (31% max)
 
 // Global variables
 int i2c_fd;
@@ -126,6 +127,8 @@ void pca9685_set_pwm(int fd, uint8_t channel, uint16_t value) {
 
     if (write(fd, buf, 5) != 5) {
         fprintf(stderr, "ERROR: Failed to write PWM to channel %d\n", channel);
+    } else {
+        // Uncomment for debugging: printf("[PWM] Ch%d=0x%04X\n", channel, value);
     }
 }
 
