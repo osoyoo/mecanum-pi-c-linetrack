@@ -448,6 +448,13 @@ int main(void) {
 
     // Initialize PCA9685 PWM controller
     pca9685_init(i2c_fd);
+
+    // Initialize all PWM channels to stopped state (critical for active-LOW enables)
+    printf("Initializing all PWM channels to stopped state...\n");
+    for (int ch = 0; ch < 16; ch++) {
+        pca9685_set_pwm(i2c_fd, ch, 0);  // 0 = stopped (HIGH voltage for active-LOW)
+    }
+
     printf("Initialization complete!\n");
     printf("Starting line tracking in 2 seconds...\n\n");
     sleep(2);

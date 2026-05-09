@@ -142,7 +142,17 @@ void stop_all(void) {
 
 void test_motor(const char* name, int pin1, int pin2, int pwm_channel) {
     printf("\n=== Testing %s ===\n", name);
-    
+
+    // CRITICAL: Ensure ALL other channels are stopped before testing this motor
+    // This prevents interference between channels
+    printf("  Initializing all channels to stopped state...\n");
+    for (int ch = 0; ch < 4; ch++) {
+        if (ch != pwm_channel) {
+            pca9685_set_pwm(i2c_fd, ch, 0);  // 0 = stopped (HIGH in inverted mode)
+        }
+    }
+    usleep(100000);  // Wait 100ms for channels to settle
+
     // Forward direction
     printf("  Direction: FORWARD\n");
     lgGpioWrite(gpio_chip, pin1, 1);
@@ -150,14 +160,14 @@ void test_motor(const char* name, int pin1, int pin2, int pwm_channel) {
     pca9685_set_pwm(i2c_fd, pwm_channel, TEST_SPEED);
     printf("  Motor should spin now. Waiting 2 seconds...\n");
     sleep(2);
-    
+
     // Stop
     lgGpioWrite(gpio_chip, pin1, 0);
     lgGpioWrite(gpio_chip, pin2, 0);
     pca9685_set_pwm(i2c_fd, pwm_channel, 0);
     printf("  Motor stopped. Waiting 1 second...\n");
     sleep(1);
-    
+
     // Backward direction
     printf("  Direction: BACKWARD\n");
     lgGpioWrite(gpio_chip, pin1, 0);
@@ -165,7 +175,7 @@ void test_motor(const char* name, int pin1, int pin2, int pwm_channel) {
     pca9685_set_pwm(i2c_fd, pwm_channel, TEST_SPEED);
     printf("  Motor should spin now. Waiting 2 seconds...\n");
     sleep(2);
-    
+
     // Stop
     lgGpioWrite(gpio_chip, pin1, 0);
     lgGpioWrite(gpio_chip, pin2, 0);
@@ -219,7 +229,14 @@ int main(void) {
     
     // Initialize PCA9685
     pca9685_init(i2c_fd);
-    
+
+    // Initialize all PWM channels to stopped state (critical for active-LOW enables)
+    printf("Initializing all PWM channels to stopped state...\n");
+    for (int ch = 0; ch < 16; ch++) {
+        pca9685_set_pwm(i2c_fd, ch, 0);  // 0 = stopped (HIGH voltage for active-LOW)
+    }
+    printf("✓ All PWM channels initialized to stopped\n");
+
     printf("\n=== Hardware Check Complete ===\n");
     printf("\n⚠️  CRITICAL: Before testing, verify:\n");
     printf("   1. L298N enable pin JUMPERS are REMOVED!\n");
