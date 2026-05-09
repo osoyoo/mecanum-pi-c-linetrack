@@ -1,6 +1,31 @@
 # Mecanum Wheel Line Tracking Robot
 
-This program enables a Mecanum wheel robot to autonomously follow a black line on white ground using 5 IR sensors.
+A C program for Raspberry Pi that enables a Mecanum wheel robot to autonomously follow a black line on white ground using 5 IR sensors.
+
+## Quick Start
+
+```bash
+# Clone the repository
+git clone https://github.com/osoyoo/mecanum-pi-c-linetrack.git
+cd mecanum-pi-c-linetrack
+
+# Install dependencies
+chmod +x install_dependencies.sh
+sudo ./install_dependencies.sh
+
+# Enable I2C
+sudo raspi-config  # Interface Options -> I2C -> Enable
+
+# Compile and run
+make
+sudo ./line_tracking
+```
+
+**IR Sensor Wiring:** Connect sensors to GPIO pins **5, 6, 13, 19, 26** (left to right)
+
+For complete instructions, see **[TUTORIAL.md](TUTORIAL.md)**
+
+---
 
 ## Features
 
@@ -51,46 +76,45 @@ I2C Address: 0x40 (default)
 I2C Bus: /dev/i2c-1
 ```
 
-### IR Sensor Connections (Default GPIO Pins)
+### IR Sensor Connections (Pre-configured GPIO Pins)
 ```
-IR_SENSOR_0 (GPIO 17) -> Left-most sensor
-IR_SENSOR_1 (GPIO 18) -> Left-center sensor
-IR_SENSOR_2 (GPIO 25) -> Center sensor
-IR_SENSOR_3 (GPIO 8)  -> Right-center sensor
-IR_SENSOR_4 (GPIO 7)  -> Right-most sensor
+IR_SENSOR_0 (GPIO 5)  -> Left-most sensor
+IR_SENSOR_1 (GPIO 6)  -> Left-center sensor
+IR_SENSOR_2 (GPIO 13) -> Center sensor
+IR_SENSOR_3 (GPIO 19) -> Right-center sensor
+IR_SENSOR_4 (GPIO 26) -> Right-most sensor
 ```
 
-**IMPORTANT**: Adjust these GPIO pin numbers in `line_tracking.c` according to your actual wiring:
-```c
-#define IR_SENSOR_0  17  // Change to your GPIO pin
-#define IR_SENSOR_1  18  // Change to your GPIO pin
-#define IR_SENSOR_2  25  // Change to your GPIO pin
-#define IR_SENSOR_3  8   // Change to your GPIO pin
-#define IR_SENSOR_4  7   // Change to your GPIO pin
-```
+These GPIO pins are already configured in the code. Simply connect your 5 IR sensors to these pins in order from left to right.
 
 ## Installation
 
-### 1. Install Dependencies
+### 1. Clone the Repository
 ```bash
-cd mecanum-pi-c
-sudo make install-deps
+git clone https://github.com/osoyoo/mecanum-pi-c-linetrack.git
+cd mecanum-pi-c-linetrack
+```
+
+### 2. Install Dependencies
+```bash
+chmod +x install_dependencies.sh
+sudo ./install_dependencies.sh
 ```
 
 This installs:
 - `liblgpio-dev` - Modern GPIO library for Raspberry Pi
 - `i2c-tools` - I2C utilities
 
-### 2. Enable I2C
+### 3. Enable I2C
 ```bash
 sudo raspi-config
 # Navigate to: Interface Options -> I2C -> Enable
 # Reboot if prompted
 ```
 
-### 3. Compile the Program
+### 4. Compile the Program
 ```bash
-make line_tracking
+make
 ```
 
 Or compile manually:
@@ -142,11 +166,13 @@ You can adjust these speeds in `line_tracking.c` based on your track and power s
 ## Customization
 
 ### Adjusting Sensor Pins
-Edit the sensor pin definitions in `line_tracking.c`:
+The sensor pins are pre-configured to GPIO 5, 6, 13, 19, 26. If you need different pins, edit `line_tracking.c`:
 ```c
-#define IR_SENSOR_0  17  // Your GPIO pin
-#define IR_SENSOR_1  18  // Your GPIO pin
-// ... etc
+#define IR_SENSOR_0  5   // Left-most sensor
+#define IR_SENSOR_1  6   // Left-center sensor
+#define IR_SENSOR_2  13  // Center sensor
+#define IR_SENSOR_3  19  // Right-center sensor
+#define IR_SENSOR_4  26  // Right-most sensor
 ```
 
 ### Adjusting Speeds
@@ -215,12 +241,18 @@ if (position == 100) {
 - Calibrate sensor spacing for your line width
 - Check for electrical noise affecting sensors
 
+## Documentation
+
+For more detailed information, see:
+- **[TUTORIAL.md](TUTORIAL.md)** - Complete step-by-step tutorial from setup to running
+- **[README_LINE_TRACKING.md](README_LINE_TRACKING.md)** - Detailed technical documentation
+- **[QUICK_START_COMMANDS.md](QUICK_START_COMMANDS.md)** - Quick command reference
+
 ## Files
 
 - `line_tracking.c` - Main line tracking program
-- `mecanum5.c` - Original mecanum demo program
 - `Makefile` - Build configuration
-- `README_LINE_TRACKING.md` - This file
+- `install_dependencies.sh` - Dependency installer
 
 ## Example Output
 
