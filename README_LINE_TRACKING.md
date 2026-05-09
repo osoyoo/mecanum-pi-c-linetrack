@@ -74,7 +74,8 @@ IR_SENSOR_4 (GPIO 7)  -> Right-most sensor
 ### 1. Install Dependencies
 ```bash
 cd mecanum-pi-c
-sudo make install-deps
+sudo chmod +x install_dependencies.sh
+sudo ./install_dependencies.sh
 ```
 
 This installs:
@@ -121,7 +122,7 @@ The algorithm uses weighted sensor readings to determine line position:
 
 | Sensor Pattern | Position | Action |
 |----------------|----------|--------|
-| `11011` | -2 (Far Left) | Sharp left turn |
+| `01111` | -2 (Far Left) | Sharp left turn |
 | `10111` | -1 (Left) | Gentle left turn |
 | `11011` | 0 (Center) | Go straight |
 | `11101` | +1 (Right) | Gentle right turn |
