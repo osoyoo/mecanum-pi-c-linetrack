@@ -97,19 +97,25 @@ void pca9685_init(int fd) {
 }
 
 void pca9685_set_pwm(int fd, uint8_t channel, uint16_t value) {
-    uint16_t pwm_value = value >> 4;
+    // CRITICAL FIX: Invert PWM for active-LOW enable pins on L298N
+    // Your L298N enable pins are active-LOW (motors run when pin is LOW)
+    // So we invert: high input value = low PWM output = motor ON
+    uint16_t pwm_value_12bit = value >> 4;          // Scale 16-bit to 12-bit
+    uint16_t inverted_pwm = 0xFFF - pwm_value_12bit; // Invert for active-LOW
+
     uint8_t reg = LED0_ON_L + 4 * channel;
     uint8_t buf[5];
     buf[0] = reg;
     buf[1] = 0;
     buf[2] = 0;
-    buf[3] = pwm_value & 0xFF;
-    buf[4] = (pwm_value >> 8) & 0x0F;
-    
+    buf[3] = inverted_pwm & 0xFF;
+    buf[4] = (inverted_pwm >> 8) & 0x0F;
+
     if (write(fd, buf, 5) != 5) {
         fprintf(stderr, "ERROR: Failed to write PWM to channel %d\n", channel);
     } else {
-        printf("  PWM channel %d set to 0x%04X (scaled: 0x%03X)\n", channel, value, pwm_value);
+        printf("  PWM channel %d: input=0x%04X, inverted=0x%03X\n",
+               channel, value, inverted_pwm);
     }
 }
 
